@@ -1,0 +1,6 @@
+RecordedAudio/*
+TargetAudio/*
+.vscode/*
+__pycache__/*
+build/*
+dist/*
