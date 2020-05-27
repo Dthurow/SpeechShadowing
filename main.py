@@ -8,6 +8,8 @@ import time
 from os.path import join, getsize
 import math
 import shutil
+import webbrowser
+import markdown
 
 # --- global values ---
 targetAudioFolder = "./TargetAudio"
@@ -58,7 +60,7 @@ def refreshTargetAudioList():
                 length = audioFile.length()
                 displaylength = ""
                 if length > 60:
-                    displaylength = str(math.floor(length/60)) + ":" + str(math.floor(length % 60))
+                    displaylength = str(math.floor(length/60)) + ":" + str(math.floor(length % 60)).zfill(2)
                 else:
                     displaylength = str(math.floor(length % 60)) + " seconds"
                 displayname += " - " + displaylength
@@ -74,6 +76,15 @@ def initialChecks():
     return True
 
 # -- event functions
+
+def openHelp():
+    if not os.path.exists("./README.html"):
+        if os.path.exists("./README.MD"):
+            markdown.markdownFromFile(input="./README.MD",output="./README.html")
+        else:
+            displayErrorMessage("Cannot find help page")
+            return
+    webbrowser.open('./README.html')
 
 # -- Target Audio Events --
 def uploadTargetAudio():
@@ -177,6 +188,11 @@ filemenu.add_separator()
 
 filemenu.add_command(label="Exit", command=root.quit)
 menubar.add_cascade(label="File", menu=filemenu)
+
+helpmenu = tk.Menu(menubar, tearoff=0)
+helpmenu.add_command(label="Help", command=openHelp)
+menubar.add_cascade(label="Help", menu=helpmenu)
+
 root.config(menu=menubar)
 
 # -- create error message area

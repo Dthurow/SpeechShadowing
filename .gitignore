@@ -1,6 +1,8 @@
-RecordedAudio/*
-TargetAudio/*
+RecordedAudio
+TargetAudio
 .vscode/*
 __pycache__/*
 build/*
 dist/*
+*.spec
+README.html
