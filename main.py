@@ -89,7 +89,7 @@ def openHelp():
 # -- Target Audio Events --
 def uploadTargetAudio():
     if initialChecks():
-        filenames = filedialog.askopenfilenames()
+        filenames = filedialog.askopenfilenames(title="Select Target Audio", filetypes=[("Audio Files", ".mp3 .wav")])
         for filename in filenames:
             shutil.copy(filename, targetAudioFolder)
         refreshTargetAudioList()
