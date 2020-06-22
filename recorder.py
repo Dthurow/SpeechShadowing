@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# code from gist https://gist.github.com/sloria/5693955
 '''recorder.py
 Provides WAV recording functionality via two approaches:
 

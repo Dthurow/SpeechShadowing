@@ -1,5 +1,6 @@
 # Import the AudioSegment class for processing audio and the 
 # split_on_silence function for separating out silent chunks.
+# code taken from https://stackoverflow.com/a/46001755 and modified for use here
 from pydub import AudioSegment
 from pydub.silence import split_on_silence, detect_silence
 import os
@@ -32,10 +33,11 @@ class AudioSplitter(object):
             song, 
             # Specify that a silent chunk must be at least minsilencelen long, in milliseconds
             min_silence_len = self.minsilencelen,
-            # Consider a chunk silent if it's quieter than -16 dBFS.
+            # Consider a chunk silent if it's quieter than the silence threshhold dBFS.
             # (You may want to adjust this parameter.)
             silence_thresh = self.silencethresh,
-            keep_silence=300
+            keep_silence=300,
+            seek_step=250
         )
         
         numwidth = len(str(len(chunks)))
