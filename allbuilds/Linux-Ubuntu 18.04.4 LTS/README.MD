@@ -9,6 +9,11 @@ The one extra feature that can be nice is that it also has a "Split on Silence" 
 
 The audio is stored in two separate files, inside the same directory that the program is running in. One is called "TargetAudio", and one is called "RecordedAudio". 
 
+Installation instructions
+------------
+In the allbuilds folder, there are separate folders for each operating system. Look for your operating sytem version, and open that folder. There you will find a SpeechShadowApp executable and a README.MD file (a copy of this one). Download both and place where you want. Double click the SpeechShadowApp to run it on your computer.
+
+If there is not a folder that matches your operating system in the allbuilds folder, that means I have not tested the app on your system yet. Instead follow the instructions under "Tech Notes"
 
 How-to
 ------------
@@ -31,10 +36,21 @@ The code assumes anything under -36dB is "silence", and requires the silence to 
 
 It will generate audio files in the target audio list area with the format: [original target audio filename]-auto-chunk\[number].mp3
 
-
 Tech Notes
 ------------
+
+### Linux Installation
+You'll need [ffmpeg](http://www.ffmpeg.org/) on your computer, as well as [python3](https://www.python.org/downloads/). Clone the repo either by using `git`, or download a zip and unzip on your machine. Open a bash terminal, navigate to where you unzipped the files, and run the code by typing `python3 main.py`
+
+### Generating Single-File Executables
 To generate a single-file executable, make sure you have pyinstaller on your machine (if you have pip, `pip3 install pyinstaller` should work), download this repo, and then type the following command:
 ```pyinstaller -n SpeechShadowApp main.py```
 
 This will create a folder /dist/SpeechShadowApp that contains an executable called SpeechShadowApp.
+
+#### Linux Single-File Executables
+If you run a linux machine, you can run the `publishLinux.sh` script to generate a build for your version of Linux. First make sure the pyinstaller is on your computer, then:
+1. Clone repo
+2. Inside the cloned repo, type open a console and run `chomd +x ./publishLinux.sh` to make the file executable
+3. Run the script `./publishLinux.sh`
+4. inside the allbuilds folder you should find a folder with your Linux version on it, open it and the SpeechShadowApp executable will be there. If you don't know what version of linux you have, run `lsb_release -ds`
