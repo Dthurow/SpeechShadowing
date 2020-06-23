@@ -4,6 +4,7 @@
 from pydub import AudioSegment
 from pydub.silence import split_on_silence, detect_silence
 import os
+import utils
 
 
 class AudioSplitter(object):
@@ -22,7 +23,7 @@ class AudioSplitter(object):
         return aChunk.apply_gain(change_in_dBFS)
 
     def split(self):
-
+        utils.displayInfoMessage("Starting Split")
         # Load your audio.
         song = AudioSegment.from_mp3(os.path.join(self.filedirectory, self.filename))
 
@@ -53,9 +54,10 @@ class AudioSplitter(object):
             normalized_chunk = self.match_target_amplitude(audio_chunk, -20.0)
 
             # Export the audio chunk with new bitrate.
-            print("Exporting {0}-auto-chunk{1}.mp3.".format(self.filename[0:len(self.filename)-4], str(i).zfill(numwidth)))
+            utils.displayInfoMessage("Exporting {0}-auto-chunk{1}.mp3.".format(self.filename[0:len(self.filename)-4], str(i).zfill(numwidth)))
             normalized_chunk.export(
                 self.filedirectory + "//{0}-auto-chunk{1}.mp3".format(self.filename[0:len(self.filename)-4], str(i).zfill(numwidth)),
                 bitrate = "192k",
                 format = "mp3"
             )
+            utils.displayInfoMessage("Splitting Complete!")

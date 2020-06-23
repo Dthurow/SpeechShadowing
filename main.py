@@ -10,6 +10,7 @@ import math
 import shutil
 import webbrowser
 import markdown
+import utils
 
 # --- global values ---
 targetAudioFolder = "./TargetAudio"
@@ -19,10 +20,6 @@ recordedAudioFolder = "./RecordedAudio"
 # --- functions ---
 
 # -- helper functions
-
-def displayErrorMessage(err):
-    print(err)
-    errorMessage.set(err)
 
 def getTargetAudioFileName():
     selectedTuple = targetAudioListBox.curselection()
@@ -46,7 +43,7 @@ def getRecordedAudioFileName():
 def refreshTargetAudioList():
     global running
     if running is not None:
-        displayErrorMessage('recording audio, gotta stop that first')
+        utils.displayErrorMessage('recording audio, gotta stop that first')
     else:
         # remove all elements in targetAudioListbox
         targetAudioListBox.delete(0, targetAudioListBox.size())
@@ -65,14 +62,17 @@ def refreshTargetAudioList():
                     displaylength = str(math.floor(length % 60)) + " seconds"
                 displayname += " - " + displaylength
                 targetAudioListBox.insert("end", displayname )
+                targetAudioListBox.see(targetAudioListBox.size())
+                utils.root.update()
 
 def initialChecks():
     global running
     #general things to do before running events
     if running is not None:
-        displayErrorMessage('Recording Audio, Stop That First')
+        utils.displayErrorMessage('Recording Audio, Stop That First')
         return False
-    displayErrorMessage('')
+    utils.displayErrorMessage('')
+    utils.displayInfoMessage('')
     return True
 
 # -- event functions
@@ -82,7 +82,7 @@ def openHelp():
         if os.path.exists("./README.MD"):
             markdown.markdownFromFile(input="./README.MD",output="./README.html")
         else:
-            displayErrorMessage("Cannot find help page")
+            utils.displayErrorMessage("Cannot find help page")
             return
     webbrowser.open('./README.html')
 
@@ -109,7 +109,7 @@ def splitTargetAudio():
             audiosplit.split()
             refreshTargetAudioList()
         else:
-            displayErrorMessage('Select Target Audio To Split')
+            utils.displayErrorMessage('Select Target Audio To Split')
 
 def playtargetaudio():
     if initialChecks():
@@ -118,7 +118,7 @@ def playtargetaudio():
             a = AudioFile.audiofile(os.path.join(targetAudioFolder, filename))
             a.play()
         else:
-            displayErrorMessage("Select Target Audio First")
+            utils.displayErrorMessage("Select Target Audio First")
 
 
 # -- Recorded Audio Events --
@@ -131,9 +131,9 @@ def playrecordedaudio():
                 a = AudioFile.audiofile(os.path.join(recordedAudioFolder, filename))
                 a.play()
             else:
-                displayErrorMessage("You must record audio first")
+                utils.displayErrorMessage("You must record audio first")
         else:
-            displayErrorMessage("You must record audio first")
+            utils.displayErrorMessage("You must record audio first")
 
 def playbothaudio():
    if initialChecks():
@@ -149,7 +149,7 @@ def startRecording():
             running = rec.open(os.path.join(recordedAudioFolder,filename), 'wb')
             running.start_recording()
         else:
-            displayErrorMessage("Select Target Audio First")
+            utils.displayErrorMessage("Select Target Audio First")
 
 def stopRecording():
     global running
@@ -159,7 +159,7 @@ def stopRecording():
         running.close()
         running = None
     else:
-        displayErrorMessage('Recording Not Running')
+        utils.displayErrorMessage('Recording Not Running')
 
 
 
@@ -174,11 +174,11 @@ if not os.path.exists(recordedAudioFolder):
 rec = recorder.Recorder(channels=2)
 running = None
 
-root = tk.Tk()
-root.title("Speech Shadowing App")
+utils.root = tk.Tk()
+utils.root.title("Speech Shadowing App")
 
 # -- create menu bar --
-menubar = tk.Menu(root)
+menubar = tk.Menu(utils.root)
 filemenu = tk.Menu(menubar, tearoff=0)
 filemenu.add_command(label="Upload Target Audio", command=uploadTargetAudio)
 filemenu.add_command(label="Split Target Audio on Silences", command=splitTargetAudio)
@@ -186,22 +186,27 @@ filemenu.add_command(label="Delete Selected Target Audio", command=deleteTargetA
 
 filemenu.add_separator()
 
-filemenu.add_command(label="Exit", command=root.quit)
+filemenu.add_command(label="Exit", command=utils.root.quit)
 menubar.add_cascade(label="File", menu=filemenu)
 
 helpmenu = tk.Menu(menubar, tearoff=0)
 helpmenu.add_command(label="Help", command=openHelp)
 menubar.add_cascade(label="Help", menu=helpmenu)
 
-root.config(menu=menubar)
+utils.root.config(menu=menubar)
+
+# -- create info message area
+utils.infoMessage = tk.StringVar(utils.root)
+infomsg = tk.Label(utils.root, textvariable=utils.infoMessage, fg="blue")
+infomsg.pack()
 
 # -- create error message area
-errorMessage = tk.StringVar(root)
-error = tk.Label(root, textvariable=errorMessage, fg="red")
+utils.errorMessage = tk.StringVar(utils.root)
+error = tk.Label(utils.root, textvariable=utils.errorMessage, fg="red")
 error.pack()
 
 # -- generate list of target audio
-targetAudioFrame = tk.Frame(root)
+targetAudioFrame = tk.Frame(utils.root)
 targetAudioFrame.pack(pady=10)
 
 
@@ -213,7 +218,7 @@ targetAudioListBoxFrame = tk.Frame(targetAudioFrame)
 targetAudioListBoxFrame.pack(padx=10)
 
 targetAudioListBox = tk.Listbox(targetAudioListBoxFrame, selectmode="SINGLE", width=75)
-refreshTargetAudioList()
+
 
 scrollbar = tk.Scrollbar(targetAudioListBoxFrame)
 scrollbar.pack(side=tk.RIGHT, fill=tk.Y,pady=5)
@@ -223,11 +228,11 @@ scrollbar.config(command=targetAudioListBox.yview)
 targetAudioListBox.pack(pady=5)
 
 
-button_playtarget = tk.Button(root, text='Play Target Audio', command=playtargetaudio)
+button_playtarget = tk.Button(utils.root, text='Play Target Audio', command=playtargetaudio)
 button_playtarget.pack(pady=5)
 
 
-recordingFrame = tk.Frame(root)
+recordingFrame = tk.Frame(utils.root)
 button_rec = tk.Button(recordingFrame, text='Start Recording', command=startRecording)
 button_rec.pack(side=tk.LEFT)
 
@@ -235,14 +240,17 @@ button_stop = tk.Button(recordingFrame, text='Stop Recording', command=stopRecor
 button_stop.pack(side=tk.LEFT, padx=5)
 recordingFrame.pack(pady=10)
 
-button_play = tk.Button(root, text='Play Recorded Audio', command=playrecordedaudio)
+button_play = tk.Button(utils.root, text='Play Recorded Audio', command=playrecordedaudio)
 button_play.pack(pady=5)
 
-button_playboth = tk.Button(root, text='Play Both Audio', command=playbothaudio)
+button_playboth = tk.Button(utils.root, text='Play Both Audio', command=playbothaudio)
 button_playboth.pack(pady=5)
 
 
+# -- load target audio initially. Set info message also has a bonus that it'll start
+# the GUI before the targetAudio list has completed
+utils.displayInfoMessage("Loading Target Audio...")
+refreshTargetAudioList()
+utils.displayInfoMessage("")
 
-
-
-root.mainloop() 
+utils.root.mainloop() 

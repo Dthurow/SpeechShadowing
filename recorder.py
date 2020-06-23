@@ -17,6 +17,7 @@ Non-blocking mode (start and stop recording):
 '''
 import pyaudio
 import wave
+import utils
 
 class Recorder(object):
     '''A recorder class for recording audio to a WAV file.
@@ -64,6 +65,7 @@ class RecordingFile(object):
 
     def start_recording(self):
         # Use a stream with a callback in non-blocking mode
+        utils.displayInfoMessage("Recording")
         self._stream = self._pa.open(format=pyaudio.paInt16,
                                         channels=self.channels,
                                         rate=self.rate,
@@ -75,6 +77,7 @@ class RecordingFile(object):
 
     def stop_recording(self):
         self._stream.stop_stream()
+        utils.displayInfoMessage("Completed Recording")
         return self
 
     def get_callback(self):
