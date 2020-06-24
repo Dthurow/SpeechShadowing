@@ -77,7 +77,7 @@ def initialChecks():
 
 # -- event functions
 
-def openHelp():
+def openHelp(event=None):
     if not os.path.exists("./README.html"):
         if os.path.exists("./README.MD"):
             markdown.markdownFromFile(input="./README.MD",output="./README.html")
@@ -87,21 +87,21 @@ def openHelp():
     webbrowser.open('./README.html')
 
 # -- Target Audio Events --
-def uploadTargetAudio():
+def uploadTargetAudio(event=None):
     if initialChecks():
         filenames = filedialog.askopenfilenames(title="Select Target Audio", filetypes=[("Audio Files", ".mp3 .wav")])
         for filename in filenames:
             shutil.copy(filename, targetAudioFolder)
         refreshTargetAudioList()
 
-def deleteTargetAudio():
+def deleteTargetAudio(event=None):
     # remove all elements in targetAudioListbox
     if initialChecks():
         filename = getTargetAudioFileName()
         os.remove(os.path.join(targetAudioFolder, filename))
         refreshTargetAudioList()
 
-def splitTargetAudio():
+def splitTargetAudio(event=None):
     if initialChecks():
         filename = getTargetAudioFileName()
         if filename != '':
@@ -111,7 +111,7 @@ def splitTargetAudio():
         else:
             utils.displayErrorMessage('Select Target Audio To Split')
 
-def playtargetaudio():
+def playtargetaudio(event=None):
     if initialChecks():
         filename = getTargetAudioFileName()
         if filename != '':
@@ -122,7 +122,7 @@ def playtargetaudio():
 
 
 # -- Recorded Audio Events --
-def playrecordedaudio():
+def playrecordedaudio(event=None):
     if initialChecks():
         filename = getRecordedAudioFileName()
         if filename != '':
@@ -135,13 +135,13 @@ def playrecordedaudio():
         else:
             utils.displayErrorMessage("You must record audio first")
 
-def playbothaudio():
+def playbothaudio(event=None):
    if initialChecks():
         playtargetaudio()
         playrecordedaudio()
 
 
-def startRecording():
+def startRecording(event=None):
     global running
     if initialChecks():
         filename = getRecordedAudioFileName()
@@ -151,7 +151,7 @@ def startRecording():
         else:
             utils.displayErrorMessage("Select Target Audio First")
 
-def stopRecording():
+def stopRecording(event=None):
     global running
 
     if running is not None:
@@ -161,7 +161,12 @@ def stopRecording():
     else:
         utils.displayErrorMessage('Recording Not Running')
 
-
+def startStopRecording(event=None):
+    global running
+    if running is not None:
+        stopRecording()
+    else:
+        startRecording()
 
 # --- main ---
 
@@ -209,8 +214,6 @@ error.pack()
 targetAudioFrame = tk.Frame(utils.root)
 targetAudioFrame.pack(pady=10)
 
-
-
 label = tk.Label(targetAudioFrame, text="Target Audio List")
 label.pack()
 
@@ -228,23 +231,49 @@ scrollbar.config(command=targetAudioListBox.yview)
 targetAudioListBox.pack(pady=5)
 
 
-button_playtarget = tk.Button(utils.root, text='Play Target Audio', command=playtargetaudio)
+# --  create buttons
+button_playtarget = tk.Button(utils.root, text='Play Target Audio (Enter Key)', command=playtargetaudio)
 button_playtarget.pack(pady=5)
 
 
-recordingFrame = tk.Frame(utils.root)
-button_rec = tk.Button(recordingFrame, text='Start Recording', command=startRecording)
-button_rec.pack(side=tk.LEFT)
+button_rec = tk.Button(utils.root, text='Start/Stop Recording (Space bar)', command=startStopRecording)
+button_rec.pack(pady=5)
 
-button_stop = tk.Button(recordingFrame, text='Stop Recording', command=stopRecording)
-button_stop.pack(side=tk.LEFT, padx=5)
-recordingFrame.pack(pady=10)
-
-button_play = tk.Button(utils.root, text='Play Recorded Audio', command=playrecordedaudio)
-button_play.pack(pady=5)
-
-button_playboth = tk.Button(utils.root, text='Play Both Audio', command=playbothaudio)
+button_playboth = tk.Button(utils.root, text='Play Both Audio (Right Ctrl Key)', command=playbothaudio)
 button_playboth.pack(pady=5)
+
+# -- create keybindings
+utils.root.bind("<Return>", playtargetaudio)
+utils.root.bind("<Control_R>", playbothaudio)
+
+def targetAudioSelectionDown(event=None):
+    selectedTuple = targetAudioListBox.curselection()
+    if (len(selectedTuple) > 0):
+        i = selectedTuple[0]
+        if (i < targetAudioListBox.size()):
+            targetAudioListBox.selection_clear(i)
+            targetAudioListBox.select_set(i+1)
+            targetAudioListBox.see(i+1)
+    else:
+        targetAudioListBox.select_set(0)
+        targetAudioListBox.see(0)
+
+def targetAudioSelectionUp(event=None):
+    selectedTuple = targetAudioListBox.curselection()
+    if (len(selectedTuple) > 0):
+        i = selectedTuple[0]
+        if (i > 0):
+            targetAudioListBox.selection_clear(i)
+            targetAudioListBox.select_set(i-1)
+            targetAudioListBox.see(i-1)
+
+    else:
+        targetAudioListBox.select_set(0)
+        targetAudioListBox.see(0)
+
+utils.root.bind("<Down>", targetAudioSelectionDown)
+utils.root.bind("<Up>", targetAudioSelectionUp)
+utils.root.bind("<space>", startStopRecording)
 
 
 # -- load target audio initially. Set info message also has a bonus that it'll start
