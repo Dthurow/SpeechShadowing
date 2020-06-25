@@ -168,6 +168,24 @@ def startStopRecording(event=None):
     else:
         startRecording()
 
+
+def displayHotkeysPopup():
+    hotkeyList="""
+    Start/Stop recording - Space bar
+    Listen to target audio - Enter
+    Navigate Target Audio List - Up/Down arrow keys
+    Listen to target and recorded audio - Right Ctrl key
+    """
+    popupWindow = tk.Toplevel(utils.root)
+    popupWindow.wm_geometry("750x300")
+    popupWindow.title("Hotkey list")
+    msg = tk.Message(popupWindow, text=hotkeyList, width=750)
+    msg.pack()
+
+    button = tk.Button(popupWindow, text="Ok", command=popupWindow.destroy)
+    button.pack(pady=5)
+    utils.root.wait_window(popupWindow)
+
 # --- main ---
 
 # create the target audio and recorded audio folders, if they don't already exist
@@ -196,6 +214,7 @@ menubar.add_cascade(label="File", menu=filemenu)
 
 helpmenu = tk.Menu(menubar, tearoff=0)
 helpmenu.add_command(label="Help", command=openHelp)
+helpmenu.add_command(label="Hotkeys", command=displayHotkeysPopup)
 menubar.add_cascade(label="Help", menu=helpmenu)
 
 utils.root.config(menu=menubar)
