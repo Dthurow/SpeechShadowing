@@ -60,4 +60,5 @@ class AudioSplitter(object):
                 bitrate = "192k",
                 format = "mp3"
             )
-            utils.displayInfoMessage("Splitting Complete!")
+
+        utils.displayInfoMessage("Splitting Complete!")

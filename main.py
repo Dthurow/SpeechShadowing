@@ -15,6 +15,7 @@ import utils
 # --- global values ---
 targetAudioFolder = "./TargetAudio"
 recordedAudioFolder = "./RecordedAudio"
+silenceThreshold = -36
 
 
 # --- functions ---
@@ -102,10 +103,11 @@ def deleteTargetAudio(event=None):
         refreshTargetAudioList()
 
 def splitTargetAudio(event=None):
+    global silenceThreshold
     if initialChecks():
         filename = getTargetAudioFileName()
         if filename != '':
-            audiosplit = audioSplitter.AudioSplitter(targetAudioFolder, filename)
+            audiosplit = audioSplitter.AudioSplitter(targetAudioFolder, filename, silencethresh=silenceThreshold)
             audiosplit.split()
             refreshTargetAudioList()
         else:
@@ -169,7 +171,7 @@ def startStopRecording(event=None):
         startRecording()
 
 
-def displayHotkeysPopup():
+def displayHotkeysPopup(event=None):
     hotkeyList="""
     Start/Stop recording - Space bar
     Listen to target audio - Enter
@@ -184,6 +186,39 @@ def displayHotkeysPopup():
 
     button = tk.Button(popupWindow, text="Ok", command=popupWindow.destroy)
     button.pack(pady=5)
+    utils.root.wait_window(popupWindow)
+
+def updateSilenceThreshhold(event=None):
+    global silenceThreshold
+
+    def silenceThreshholdClose():
+        global silenceThreshold
+        try:
+            silenceThreshold = int(popupEntry.get())
+            print(silenceThreshold)
+            popupWindow.destroy()
+        except:
+            popupErrorMsg.set("Must be a valid number")
+
+
+    popupWindow = tk.Toplevel(utils.root)
+    popupWindow.wm_geometry("1000x250")
+    popupWindow.title("Change Silence dBS")
+    popupLabel = tk.Label(popupWindow, text="Update what 'silence' is defined as when splitting target audio (in dBS)")
+    popupLabel.pack(pady=5)
+    popupLabel2 = tk.Label(popupWindow, text="Current Silence Threshold is: " + str(silenceThreshold) + "dBS")
+    popupLabel2.pack(pady=5)
+
+    popupEntry = tk.Entry(popupWindow)
+    popupEntry.pack()
+
+    button = tk.Button(popupWindow, text="Update", command=silenceThreshholdClose)
+    button.pack(pady=5)
+
+    popupErrorMsg = tk.StringVar()
+    popupError = tk.Label(popupWindow, textvariable=popupErrorMsg, fg="red")
+    popupError.pack(pady=5)
+
     utils.root.wait_window(popupWindow)
 
 # --- main ---
@@ -206,7 +241,7 @@ filemenu = tk.Menu(menubar, tearoff=0)
 filemenu.add_command(label="Upload Target Audio", command=uploadTargetAudio)
 filemenu.add_command(label="Split Target Audio on Silences", command=splitTargetAudio)
 filemenu.add_command(label="Delete Selected Target Audio", command=deleteTargetAudio)
-
+filemenu.add_command(label="Update Silence Threshold", command=updateSilenceThreshhold)
 filemenu.add_separator()
 
 filemenu.add_command(label="Exit", command=utils.root.quit)

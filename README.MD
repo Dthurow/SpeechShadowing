@@ -9,7 +9,8 @@ Speech Shadowing App
     2. [Practice Speech Shadowing](#practicespeechshadowing)
     3. [Delete Target Audio](#deletetargetaudio)
     4. [Split Target Audio on silences](#splittargetaudio)
-    5. [Hotkeys](#hotkeys)
+    5. [Update Silence dBS](#updatesilencedbs)
+    6. [Hotkeys](#hotkeys)
 4. [Tech Notes](#technotes)
     1. [Linux Installation](#linuxinstall)
     2. [Generating Single-File Executables](#singlefileexecutable)
@@ -49,9 +50,12 @@ To delete a target audio, select it in the "Target Audio List". Then go to File-
 ### Split Target Audio on silences <a name="splittargetaudio"></a>
 If you have a longer audio that you want to split into individual sentences or phrases, you can try splitting the audio on silences. Select the target audio from the "Target Audio List", then go to File->"Split Target Audio On Silences". This can take a while for longer audio (really anything over a couple minutes will take a while), so be patient. 
 
-The code assumes anything under -36dB is "silence", and requires the silence to be 1 second long in order to split the audio at that point. 
+The default definition of "silence" is anything under -36dB, and requires the silence to be 1 second long in order to split the audio at that point. To update what's defined as "silence", [Update Silence dBS](#updatesilencedbs)
 
 It will generate audio files in the target audio list area with the format: [original target audio filename]-auto-chunk\[number].mp3
+
+### Update Silence dBS <a name="updatesilencedbs"></a>
+To update what the default definition of "silence" is when splitting target audio, go to "File"-> "Update Silence Threshold". This opens up a popup window that you can enter a new value. It must be a valid whole number, and is in dBS. If you attempt to split a target audio, and it splits too often, change it to a more negative number (e.g. -50). If you attempt to split target audio and it doesn't split the audio enough, make it a less negative number (e.g. -20).
 
 ### Hotkeys <a name="hotkeys"></a>
 * Start/Stop recording - Space bar
